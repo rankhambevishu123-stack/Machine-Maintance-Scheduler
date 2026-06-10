@@ -1,0 +1,155 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "department": "Admin",
+      "password": "admin123"
+    },
+    {
+      "id": 2,
+      "department": "Blast Furnace",
+      "password": "blast123"
+    },
+    {
+      "id": 3,
+      "department": "SMS",
+      "password": "sms123"
+    },
+    {
+      "id": 4,
+      "department": "Rolling Mill",
+      "password": "rolling123"
+    },
+    {
+      "id": 5,
+      "department": "Power Plant",
+      "password": "power123"
+    },
+    {
+      "id": 6,
+      "department": "Material Handling",
+      "password": "material123"
+    }
+  ],
+  "machines": [
+    {
+      "id": 1,
+      "department": "Blast Furnace",
+      "name": "Blast Furnace 1",
+      "location": "Zone A",
+      "status": "Running"
+    },
+    {
+      "id": 2,
+      "department": "Blast Furnace",
+      "name": "Blast Furnace 2",
+      "location": "Zone A",
+      "status": "Maintenance"
+    },
+    {
+      "id": 3,
+      "department": "SMS",
+      "name": "BOF Converter 1",
+      "location": "Zone B",
+      "status": "Running"
+    },
+    {
+      "id": 4,
+      "department": "Rolling Mill",
+      "name": "Roughing Mill",
+      "location": "Zone C",
+      "status": "Stopped"
+    },
+    {
+      "id": 5,
+      "department": "Power Plant",
+      "name": "Boiler 1",
+      "location": "Zone D",
+      "status": "Running"
+    },
+    {
+      "id": 6,
+      "department": "Material Handling",
+      "name": "Conveyor 1",
+      "location": "Zone E",
+      "status": "Running"
+    },
+    {
+      "id": 7,
+      "department": "Blast Furnace",
+      "name": "Blast Furnace 1",
+      "location": "bf1",
+      "status": "Maintenance"
+    }
+  ],
+  "technicians": [
+    {
+      "id": 1,
+      "name": "Amit Sharma",
+      "contact": "9876543210",
+      "skill": "Electrical",
+      "assignedMachines": "Blast Furnace 1, Boiler 1"
+    },
+    {
+      "id": 2,
+      "name": "Neha Verma",
+      "contact": "9876501234",
+      "skill": "Mechanical",
+      "assignedMachines": "Roughing Mill"
+    },
+    {
+      "id": 3,
+      "name": "Ravi Kumar",
+      "contact": "9988776655",
+      "skill": "Hydraulics",
+      "assignedMachines": "Conveyor 1"
+    }
+  ],
+  "schedules": [
+    {
+      "id": 1,
+      "machine": "Blast Furnace 1",
+      "technician": "Amit Sharma",
+      "date": "2026-06-12",
+      "priority": "High",
+      "status": "Pending"
+    },
+    {
+      "id": 2,
+      "machine": "Boiler 1",
+      "technician": "Ravi Kumar",
+      "date": "2026-06-08",
+      "priority": "Medium",
+      "status": "Completed"
+    },
+    {
+      "id": 3,
+      "machine": "Blast Furnace 1",
+      "technician": "Amit Sharma",
+      "date": "2026-06-11",
+      "priority": "Low",
+      "status": "Pending"
+    }
+  ],
+  "breakdowns": [
+    {
+      "id": 1,
+      "machine": "Roughing Mill",
+      "issue": "Motor vibration",
+      "priority": "High",
+      "date": "2026-06-09",
+      "status": "Open"
+    }
+  ],
+  "history": [
+    {
+      "id": 1,
+      "machine": "Boiler 1",
+      "technician": "Ravi Kumar",
+      "date": "2026-06-08",
+      "status": "Completed",
+      "type": "Maintenance"
+    }
+  ],
+  "updatedAt": "2026-06-10T06:52:56.634Z"
+}
