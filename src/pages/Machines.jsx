@@ -1,142 +1,83 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { machinesData } from "./Data/machinesData";
+import { api } from "../services/api";
 
 export default function Machines() {
   const [search, setSearch] = useState("");
-  const [selectedMachine, setSelectedMachine] =
-    useState(null);
-
-  const [department, setDepartment] =
-    useState("");
-
-  const [machineName, setMachineName] =
-    useState("");
-
-  const [location, setLocation] =
-    useState("");
-
-  const [status, setStatus] =
-    useState("Running");
-
-  const [editId, setEditId] =
-    useState(null);
-
-  const [machines, setMachines] =
-    useState(() => {
-      const saved =
-        localStorage.getItem("machines");
-
-      return saved
-        ? JSON.parse(saved)
-        : [];
-    });
-
-  const schedules = JSON.parse(
-    localStorage.getItem("schedules") ||
-      "[]"
-  );
+  const [department, setDepartment] = useState("");
+  const [machineName, setMachineName] = useState("");
+  const [location, setLocation] = useState("");
+  const [status, setStatus] = useState("Running");
+  const [editId, setEditId] = useState(null);
+  const [machines, setMachines] = useState([]);
+  const [selectedMachine, setSelectedMachine] = useState(null);
+  const [schedules, setSchedules] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem(
-      "machines",
-      JSON.stringify(machines)
-    );
-  }, [machines]);
+    Promise.all([api.list("machines"), api.list("schedules")])
+      .then(([machineItems, scheduleItems]) => {
+        setMachines(machineItems);
+        setSchedules(scheduleItems);
+      })
+      .catch(() => {
+        setMachines([]);
+        setSchedules([]);
+      });
+  }, []);
 
-  const addMachine = () => {
-    if (
-      !department ||
-      !machineName ||
-      !location
-    ) {
+  const refreshMachines = async () => {
+    setMachines(await api.list("machines"));
+  };
+
+  const addMachine = async () => {
+    if (!department || !machineName || !location) {
       alert("Fill all fields");
       return;
     }
 
-    if (editId) {
-      setMachines(
-        machines.map((m) =>
-          m.id === editId
-            ? {
-                ...m,
-                department,
-                name: machineName,
-                location,
-                status,
-              }
-            : m
-        )
-      );
+    const payload = { department, name: machineName, location, status };
 
-      setEditId(null);
-    } else {
-      const newMachine = {
-        id: Date.now(),
-        department,
-        name: machineName,
-        location,
-        status,
-      };
+    try {
+      if (editId) {
+        await api.update("machines", editId, payload);
+        setEditId(null);
+      } else {
+        await api.create("machines", payload);
+      }
 
-      setMachines([
-        ...machines,
-        newMachine,
-      ]);
+      await refreshMachines();
+      setDepartment("");
+      setMachineName("");
+      setLocation("");
+      setStatus("Running");
+    } catch (error) {
+      alert(error.message || "Unable to save machine");
     }
-
-    setDepartment("");
-    setMachineName("");
-    setLocation("");
-    setStatus("Running");
   };
 
-  const deleteMachine = (id) => {
-    setMachines(
-      machines.filter(
-        (m) => m.id !== id
-      )
-    );
+  const deleteMachine = async (id) => {
+    try {
+      await api.remove("machines", id);
+      await refreshMachines();
+    } catch (error) {
+      alert(error.message || "Unable to delete machine");
+    }
   };
 
   const editMachine = (machine) => {
-    setDepartment(
-      machine.department
-    );
-
-    setMachineName(
-      machine.name
-    );
-
-    setLocation(
-      machine.location
-    );
-
-    setStatus(
-      machine.status
-    );
-
+    setDepartment(machine.department);
+    setMachineName(machine.name);
+    setLocation(machine.location);
+    setStatus(machine.status);
     setEditId(machine.id);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const filteredMachines =
-    machines.filter(
-      (machine) =>
-        machine.name
-          .toLowerCase()
-          .includes(
-            search.toLowerCase()
-          ) ||
-        machine.department
-          .toLowerCase()
-          .includes(
-            search.toLowerCase()
-          )
-    );
+  const filteredMachines = machines.filter(
+    (machine) =>
+      machine.name.toLowerCase().includes(search.toLowerCase()) ||
+      machine.department.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-[#081421] text-white p-8">
@@ -395,7 +336,7 @@ export default function Machines() {
 
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
 
-          <div className="bg-[#0d1b2a] p-8 rounded-xl w-[500px]">
+          <div className="bg-[#0d1b2a] p-8 rounded-xl max-w-xl w-full">
 
             <h2 className="text-2xl font-bold mb-5">
               Machine Details
@@ -439,54 +380,40 @@ export default function Machines() {
                 Maintenance History
               </h3>
 
-              {schedules.filter(
-                (s) =>
-                  s.machine ===
+              {schedules.some(
+                (schedule) =>
+                  schedule.machine ===
                   selectedMachine.name
-              ).length > 0 ? (
+              ) ? (
 
                 schedules
                   .filter(
-                    (s) =>
-                      s.machine ===
+                    (schedule) =>
+                      schedule.machine ===
                       selectedMachine.name
                   )
-                  .map(
-                    (
-                      item,
-                      index
-                    ) => (
-                      <div
-                        key={index}
-                        className="bg-[#162538] p-3 rounded mb-2"
-                      >
-                        <p>
-                          Date :
-                          {" "}
-                          {
-                            item.date
-                          }
-                        </p>
+                  .map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-[#162538] p-3 rounded mb-2"
+                    >
+                      <p>
+                        Date : {" "}
+                        {item.date}
+                      </p>
 
-                        <p>
-                          Technician :
-                          {" "}
-                          {
-                            item.technician
-                          }
-                        </p>
+                      <p>
+                        Technician : {" "}
+                        {item.technician}
+                      </p>
 
-                        <p>
-                          Status :
-                          {" "}
-                          {
-                            item.status
-                          }
-                        </p>
+                      <p>
+                        Status : {" "}
+                        {item.status}
+                      </p>
 
-                      </div>
-                    )
-                  )
+                    </div>
+                  ))
 
               ) : (
                 <p>

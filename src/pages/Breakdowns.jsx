@@ -1,81 +1,60 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../services/api";
 
 export default function Breakdowns() {
-  const [breakdowns, setBreakdowns] = useState(() => {
-    const saved = localStorage.getItem("breakdowns");
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  const [breakdowns, setBreakdowns] = useState([]);
   const [machine, setMachine] = useState("");
   const [issue, setIssue] = useState("");
   const [priority, setPriority] = useState("Medium");
 
   useEffect(() => {
-    localStorage.setItem(
-      "breakdowns",
-      JSON.stringify(breakdowns)
-    );
-  }, [breakdowns]);
+    api.list("breakdowns").then(setBreakdowns).catch(() => setBreakdowns([]));
+  }, []);
 
-  const addBreakdown = () => {
+  const refreshBreakdowns = async () => {
+    setBreakdowns(await api.list("breakdowns"));
+  };
+
+  const addBreakdown = async () => {
     if (!machine || !issue) {
       alert("Fill all fields");
       return;
     }
 
-    const newBreakdown = {
-      id: Date.now(),
+    await api.create("breakdowns", {
       machine,
       issue,
       priority,
-      date: new Date().toLocaleDateString(),
+      date: new Date().toISOString().split("T")[0],
       status: "Open",
-    };
+    });
 
-    setBreakdowns([...breakdowns, newBreakdown]);
-
+    await refreshBreakdowns();
     setMachine("");
     setIssue("");
     setPriority("Medium");
   };
 
-  const closeBreakdown = (id) => {
-  const selected = breakdowns.find(
-    (item) => item.id === id
-  );
+  const closeBreakdown = async (id) => {
+    const selected = breakdowns.find((item) => item.id === id);
+    if (!selected) return;
 
-  const history = JSON.parse(
-    localStorage.getItem("history") || "[]"
-  );
+    await api.update("breakdowns", id, { ...selected, status: "Closed" });
+    await api.create("history", {
+      machine: selected.machine,
+      issue: selected.issue,
+      priority: selected.priority,
+      date: new Date().toISOString().split("T")[0],
+      status: "Resolved",
+      type: "Breakdown",
+    });
 
-  history.push({
-    id: Date.now(),
-    machine: selected.machine,
-    issue: selected.issue,
-    priority: selected.priority,
-    date: new Date().toLocaleDateString(),
-    status: "Resolved",
-    type: "Breakdown",
-  });
+    await refreshBreakdowns();
+  };
 
-  localStorage.setItem(
-    "history",
-    JSON.stringify(history)
-  );
-
-  setBreakdowns(
-    breakdowns.map((item) =>
-      item.id === id
-        ? { ...item, status: "Closed" }
-        : item
-    )
-  );
-};
-
-  const deleteBreakdown = (id) => {
-    setBreakdowns(
-      breakdowns.filter((item) => item.id !== id)
-    );
+  const deleteBreakdown = async (id) => {
+    await api.remove("breakdowns", id);
+    await refreshBreakdowns();
   };
 
   return (

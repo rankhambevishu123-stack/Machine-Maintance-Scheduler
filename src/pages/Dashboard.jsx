@@ -5,12 +5,14 @@ import {
   FileText,
   Bell,
   Search,
+  UserCog,
+  AlertTriangle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   PieChart,
   Pie,
-  Cell,
   Tooltip,
   ResponsiveContainer,
   BarChart,
@@ -18,22 +20,34 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-
-import { UserCog } from "lucide-react";
-import { AlertTriangle } from "lucide-react";
-import { useState } from "react";
+import { api } from "../services/api";
 
 
 export default function Dashboard() {
   const navigate = useNavigate();
 
-const machines = JSON.parse(
-  localStorage.getItem("machines") || "[]"
-);
+  const [machines, setMachines] = useState([]);
+  const [schedules, setSchedules] = useState([]);
+  const [breakdowns, setBreakdowns] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
-const schedules = JSON.parse(
-  localStorage.getItem("schedules") || "[]"
-);
+  useEffect(() => {
+    Promise.all([
+      api.list("machines"),
+      api.list("schedules"),
+      api.list("breakdowns"),
+    ])
+      .then(([machineItems, scheduleItems, breakdownItems]) => {
+        setMachines(machineItems);
+        setSchedules(scheduleItems);
+        setBreakdowns(breakdownItems);
+      })
+      .catch(() => {
+        setMachines([]);
+        setSchedules([]);
+        setBreakdowns([]);
+      });
+  }, []);
 
 const runningMachines = machines.filter(
   (m) => m.status === "Running"
@@ -50,29 +64,28 @@ const pieData = [
   {
     name: "Completed",
     value: completedCount,
+    fill: "#22c55e",
   },
   {
     name: "Pending",
     value: pendingCount,
+    fill: "#eab308",
   },
 ];
 
-const overdueCount = schedules.filter(
-  (item) => {
+  const overdueCount = schedules.filter((item) => {
     if (item.status === "Completed") {
       return false;
     }
-    const upcomingCount = schedules.filter(
-  (item) =>
-    item.status === "Pending" &&
-    new Date(item.date) >= new Date()
-).length;
 
-    return (
-      new Date(item.date) < new Date()
-    );
-  }
-).length;
+    return new Date(item.date) < new Date();
+  }).length;
+
+  const upcomingCount = schedules.filter(
+    (item) =>
+      item.status === "Pending" &&
+      new Date(item.date) >= new Date()
+  ).length;
 const statusData = [
   {
     name: "Running",
@@ -93,28 +106,8 @@ const statusData = [
     ).length,
   },
 ];
-const breakdowns = JSON.parse(
-  localStorage.getItem("breakdowns") || "[]"
-);
-
-const activeBreakdowns = breakdowns.filter(
-  (b) => b.status === "Open"
-).length;
-const [showNotifications, setShowNotifications] =
-  useState(false);
-const historyCount = schedules.length;
-const completedMaintenance = schedules.filter(
-  (s) => s.status === "Completed"
-).length;
-<div className="bg-[#0d1b2a] p-5 rounded-xl border border-slate-700">
-  <p className="text-gray-400">
-    History Records
-  </p>
-
-  <h2 className="text-3xl font-bold mt-2 text-purple-400">
-    {historyCount}
-  </h2>
-</div>
+  const activeBreakdowns = breakdowns.filter((b) => b.status === "Open").length;
+  const completedMaintenance = schedules.filter((s) => s.status === "Completed").length;
   return (
     <div className="flex min-h-screen bg-[#081421] text-white">
 
@@ -132,71 +125,85 @@ const completedMaintenance = schedules.filter(
             Dashboard
           </li>
 
-          <li
-            onClick={() => navigate("/machines")}
-            className="p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
-          >
-            <Wrench size={18} />
-            Machines
+          <li>
+            <button
+              type="button"
+              onClick={() => navigate("/machines")}
+              className="w-full p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
+            >
+              <Wrench size={18} />
+              Machines
+            </button>
           </li>
 
-          <li
-            onClick={() => navigate("/maintenance")}
-            className="p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
-          >
-            <Calendar size={18} />
-            Maintenance
+          <li>
+            <button
+              type="button"
+              onClick={() => navigate("/maintenance")}
+              className="w-full p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
+            >
+              <Calendar size={18} />
+              Maintenance
+            </button>
           </li>
 
-          <li
-  onClick={() => navigate("/reports")}
-  className="p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
->
-  <FileText size={18} />
-  Reports
-</li>
-<li
-  onClick={() => navigate("/technicians")}
-  className="p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
->
-  <UserCog size={18} />
-  Technicians
-</li>
-<li
-  onClick={() => navigate("/breakdowns")}
-  className="p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
->
-  <AlertTriangle size={18} />
-  Breakdowns
-</li>
-<li
-  onClick={() => navigate("/history")}
-  className="p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
->
-  <FileText size={18} />
-  History
-</li>
+          <li>
+            <button
+              type="button"
+              onClick={() => navigate("/reports")}
+              className="w-full p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
+            >
+              <FileText size={18} />
+              Reports
+            </button>
+          </li>
 
- 
+          <li>
+            <button
+              type="button"
+              onClick={() => navigate("/technicians")}
+              className="w-full p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
+            >
+              <UserCog size={18} />
+              Technicians
+            </button>
+          </li>
 
-<div className="bg-[#0d1b2a] p-5 rounded-xl border border-slate-700">
-  <p className="text-gray-400">
-    Active Breakdowns
-  </p>
-  
-  <h2 className="text-3xl font-bold mt-2 text-red-400">
-    {activeBreakdowns}
-  </h2>
-  <div className="bg-[#0d1b2a] p-5 rounded-xl border border-slate-700">
-  <p className="text-gray-400">
-    Completed Maintenance
-  </p>
-   <h2 className="text-3xl font-bold mt-2 text-green-400">
-    {completedMaintenance}
-  </h2>
+          <li>
+            <button
+              type="button"
+              onClick={() => navigate("/breakdowns")}
+              className="w-full p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
+            >
+              <AlertTriangle size={18} />
+              Breakdowns
+            </button>
+          </li>
 
-</div>
-</div>
+          <li>
+            <button
+              type="button"
+              onClick={() => navigate("/history")}
+              className="w-full p-3 rounded-lg hover:bg-slate-800 flex gap-3 cursor-pointer"
+            >
+              <FileText size={18} />
+              History
+            </button>
+          </li>
+
+          <li className="bg-[#0d1b2a] p-5 rounded-xl border border-slate-700">
+            <p className="text-gray-400">Active Breakdowns</p>
+            <h2 className="text-3xl font-bold mt-2 text-red-400">
+              {activeBreakdowns}
+            </h2>
+          </li>
+
+          <li className="bg-[#0d1b2a] p-5 rounded-xl border border-slate-700">
+            <p className="text-gray-400">Completed Maintenance</p>
+            <h2 className="text-3xl font-bold mt-2 text-green-400">
+              {completedMaintenance}
+            </h2>
+          </li>
 
         </ul>
 
@@ -336,9 +343,6 @@ const completedMaintenance = schedules.filter(
         outerRadius={90}
         label
       >
-        
-        <Cell fill="#22c55e" />
-        <Cell fill="#eab308" />
       </Pie>
       
 

@@ -1,6 +1,7 @@
 import { ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { api } from "../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -8,56 +9,24 @@ export default function Login() {
   const [department, setDepartment] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    const users = [
-      {
-        department: "Admin",
-        password: "admin123",
-      },
-      {
-        department: "Blast Furnace",
-        password: "blast123",
-      },
-      {
-        department: "SMS",
-        password: "sms123",
-      },
-      {
-        department: "Rolling Mill",
-        password: "rolling123",
-      },
-      {
-        department: "Power Plant",
-        password: "power123",
-      },
-      {
-        department: "Material Handling",
-        password: "material123",
-      },
-    ];
+  const handleLogin = async () => {
+    try {
+      if (!department || !password) {
+        alert("Select a department and enter a password");
+        return;
+      }
 
-    const user = users.find(
-      (u) =>
-        u.department === department &&
-        u.password === password
-    );
-
-    if (user) {
-      localStorage.setItem(
-        "department",
-        user.department
-      );
-
+      await api.login(department, password);
       navigate("/dashboard");
-    } else {
-      alert("Invalid Login");
+    } catch (error) {
+      alert(error.message || "Invalid Login");
     }
   };
 
   return (
     <div className="min-h-screen bg-[#081421] flex items-center justify-center">
 
-      <div className="w-[420px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
+      <div className="max-w-md w-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
 
         <div className="flex justify-center mb-4">
           <ShieldCheck

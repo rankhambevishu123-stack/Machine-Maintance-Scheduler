@@ -1,20 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../services/api";
 
 export default function Maintenance() {
-  const [schedules, setSchedules] = useState(() => {
-    const saved = localStorage.getItem("schedules");
-    
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const machines = JSON.parse(
-    localStorage.getItem("machines") || "[]"
-  );
-
-  const technicians = JSON.parse(
-    localStorage.getItem("technicians") || "[]"
-  );
-
+  const [schedules, setSchedules] = useState([]);
+  const [machines, setMachines] = useState([]);
+  const [technicians, setTechnicians] = useState([]);
   const [machine, setMachine] = useState("");
   const [technician, setTechnician] = useState("");
   const [date, setDate] = useState("");
@@ -22,65 +12,60 @@ export default function Maintenance() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    localStorage.setItem(
-      "schedules",
-      JSON.stringify(schedules)
-    );
-  }, [schedules]);
+    Promise.all([api.list("schedules"), api.list("machines"), api.list("technicians")])
+      .then(([scheduleItems, machineItems, technicianItems]) => {
+        setSchedules(scheduleItems);
+        setMachines(machineItems);
+        setTechnicians(technicianItems);
+      })
+      .catch(() => {
+        setSchedules([]);
+        setMachines([]);
+        setTechnicians([]);
+      });
+  }, []);
 
-  const addSchedule = () => {
-    if (
-      !machine ||
-      !technician ||
-      !date
-    ) {
+  const refreshSchedules = async () => {
+    setSchedules(await api.list("schedules"));
+  };
+
+  const addSchedule = async () => {
+    if (!machine || !technician || !date) {
       alert("Please fill all fields");
       return;
     }
 
-    const newSchedule = {
-      id: Date.now(),
-      machine,
-      technician,
-      date,
-      priority,
-      status: "Pending",
-    };
-
-    setSchedules([
-      ...schedules,
-      newSchedule,
-    ]);
-
-    setMachine("");
-    setTechnician("");
-    setDate("");
-    setPriority("Medium");
+    try {
+      await api.create("schedules", {
+        machine,
+        technician,
+        date,
+        priority,
+        status: "Pending",
+      });
+      await refreshSchedules();
+      setMachine("");
+      setTechnician("");
+      setDate("");
+      setPriority("Medium");
+    } catch (error) {
+      alert(error.message || "Unable to save schedule");
+    }
   };
 
-  const deleteSchedule = (id) => {
-    setSchedules(
-      schedules.filter(
-        (item) => item.id !== id
-      )
-    );
+  const deleteSchedule = async (id) => {
+    await api.remove("schedules", id);
+    await refreshSchedules();
   };
 
-  const toggleStatus = (id) => {
-    setSchedules(
-      schedules.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              status:
-                item.status ===
-                "Pending"
-                  ? "Completed"
-                  : "Pending",
-            }
-          : item
-      )
-    );
+  const toggleStatus = async (id) => {
+    const selected = schedules.find((item) => item.id === id);
+    if (!selected) return;
+    await api.update("schedules", id, {
+      ...selected,
+      status: selected.status === "Pending" ? "Completed" : "Pending",
+    });
+    await refreshSchedules();
   };
 
   const filteredSchedules =
