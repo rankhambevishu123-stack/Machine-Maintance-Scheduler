@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+  <div class="sidebar">
+    <h2>JSW</h2>
+
+    <a>Mechanical</a>
+    <a>Electrical</a>
+    <a>Hydraulics</a>
+    <a>Production</a>
+    <a>Safety</a>
+  </div>
+
+  <div class="main">
+
+    <h1>Dashboard</h1>
+
+    <p>Machine Management System</p>
+
+    <!-- ADD MACHINE -->
+    <div class="add-box">
+
+      <input id="mname" placeholder="Enter machine name">
+      <button onclick="addMachine()">Add Machine</button>
+
+    </div>
+
+    <!-- MACHINE LIST -->
+    <div id="list"></div>
+
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
