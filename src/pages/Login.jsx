@@ -9,20 +9,22 @@ export default function Login() {
   const [department, setDepartment] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async () => {
-    try {
-      if (!department || !password) {
-        alert("Select a department and enter a password");
-        return;
-      }
-
-      await api.login(department, password);
-      navigate("/dashboard");
-    } catch (error) {
-      alert(error.message || "Invalid Login");
-    }
+ const handleLogin = () => {
+  const users = {
+    Admin: "admin123",
+    "Blast Furnace": "blast123",
+    SMS: "sms123",
+    "Rolling Mill": "rolling123",
+    "Power Plant": "power123",
+    "Material Handling": "material123",
   };
 
+  if (users[department] === password) {
+    navigate("/dashboard");
+  } else {
+    alert("Invalid Login");
+  }
+};
   return (
     <div className="min-h-screen bg-[#081421] flex items-center justify-center">
 

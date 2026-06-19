@@ -7,6 +7,7 @@ import {
   Search,
   UserCog,
   AlertTriangle,
+  LogOut
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -22,6 +23,7 @@ import {
 } from "recharts";
 import { api } from "../services/api";
 
+;
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -30,6 +32,7 @@ export default function Dashboard() {
   const [schedules, setSchedules] = useState([]);
   const [breakdowns, setBreakdowns] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+
 
   useEffect(() => {
     Promise.all([
@@ -114,9 +117,11 @@ const statusData = [
       {/* Sidebar */}
       <div className="w-64 bg-[#06111f] border-r border-slate-800 p-5">
 
-        <h1 className="text-2xl font-bold text-cyan-400 mb-10">
-          JSW Scheduler
-        </h1>
+        <div className="mb-8 flex justify-center">
+  <h1 className="text-cyan-400 text-4xl font-bold">
+  JSW Scheduler
+</h1>
+</div>
 
         <ul className="space-y-3">
 
@@ -190,20 +195,43 @@ const statusData = [
               History
             </button>
           </li>
+          <li
+  onClick={() => {
+    localStorage.clear();
+    window.location.href = "/";
+  }}
+  className="flex items-center gap-3 p-3 cursor-pointer text-red-400 hover:bg-red-600/20 rounded-lg"
+>
+  <LogOut size={18} />
+  <span>Logout</span>
+</li>
+<li className="bg-[#0d1b2a] p-5 rounded-xl border border-slate-700 shadow-md hover:border-cyan-500 transition-all">
+  <p className="text-sm text-slate-400 uppercase tracking-wide">
+    Active Breakdowns
+  </p>
 
-          <li className="bg-[#0d1b2a] p-5 rounded-xl border border-slate-700">
-            <p className="text-gray-400">Active Breakdowns</p>
-            <h2 className="text-3xl font-bold mt-2 text-red-400">
-              {activeBreakdowns}
-            </h2>
-          </li>
+  <div className="flex items-center justify-between mt-3">
+    <h2 className="text-4xl font-bold text-red-400">
+      {activeBreakdowns}
+    </h2>
 
-          <li className="bg-[#0d1b2a] p-5 rounded-xl border border-slate-700">
-            <p className="text-gray-400">Completed Maintenance</p>
-            <h2 className="text-3xl font-bold mt-2 text-green-400">
-              {completedMaintenance}
-            </h2>
-          </li>
+    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+  </div>
+</li>
+
+<li className="bg-[#0d1b2a] p-5 rounded-xl border border-slate-700 shadow-md hover:border-cyan-500 transition-all">
+  <p className="text-sm text-slate-400 uppercase tracking-wide">
+    Completed Maintenance
+  </p>
+
+  <div className="flex items-center justify-between mt-3">
+    <h2 className="text-4xl font-bold text-green-400">
+      {completedMaintenance}
+    </h2>
+
+    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+  </div>
+</li>
 
         </ul>
 
@@ -216,17 +244,6 @@ const statusData = [
         <div className="flex justify-between items-center mb-8">
 
           <div className="relative">
-
-            <Search
-              size={18}
-              className="absolute left-3 top-4 text-gray-400"
-            />
-
-            <input
-              type="text"
-              placeholder="Search..."
-              className="bg-[#0d1b2a] border border-slate-700 rounded-xl pl-10 p-3 w-80"
-            />
 
           </div>
 
@@ -380,36 +397,67 @@ const statusData = [
 
           <div className="bg-[#0d1b2a] p-6 rounded-xl border border-slate-700">
 
-            <h2 className="text-xl font-semibold mb-4">
-              Recent Alerts
-            </h2>
-            <div className="bg-red-500/20 p-3 rounded-lg">
-  Active Breakdowns : {activeBreakdowns}
+  <h2 className="text-xl font-semibold mb-6">
+    Recent Alerts
+  </h2>
+
+  <div className="flex flex-col gap-4">
+
+    <div className="bg-red-500/20 border border-red-500/30 p-4 rounded-xl flex justify-between items-center">
+      <span className="font-medium">
+        Active Breakdowns
+      </span>
+
+      <span className="text-xl font-bold text-red-400">
+        {activeBreakdowns}
+      </span>
+    </div>
+
+    {overdueCount > 0 ? (
+      <div className="bg-red-500/20 border border-red-500/30 p-4 rounded-xl flex justify-between items-center">
+        <span className="font-medium">
+          Overdue Maintenance
+        </span>
+
+        <span className="text-xl font-bold text-red-400">
+          {overdueCount}
+        </span>
+      </div>
+    ) : (
+      <div className="bg-green-500/20 border border-green-500/30 p-4 rounded-xl flex justify-between items-center">
+        <span className="font-medium">
+          Critical Alerts
+        </span>
+
+        <span className="text-xl font-bold text-green-400">
+          0
+        </span>
+      </div>
+    )}
+
+    <div className="bg-blue-500/20 border border-blue-500/30 p-4 rounded-xl flex justify-between items-center">
+      <span className="font-medium">
+        Total Machines
+      </span>
+
+      <span className="text-xl font-bold text-blue-400">
+        {machines.length}
+      </span>
+    </div>
+
+    <div className="bg-yellow-500/20 border border-yellow-500/30 p-4 rounded-xl flex justify-between items-center">
+      <span className="font-medium">
+        Scheduled Maintenance
+      </span>
+
+      <span className="text-xl font-bold text-yellow-400">
+        {schedules.length}
+      </span>
+    </div>
+
+  </div>
+
 </div>
-
-            <div className="space-y-3">
-
-              {overdueCount > 0 ? (
-                <div className="bg-red-500/20 p-3 rounded-lg">
-                  {overdueCount} Overdue Maintenance Tasks
-                </div>
-              ) : (
-                <div className="bg-green-500/20 p-3 rounded-lg">
-                  No Critical Alerts
-                </div>
-              )}
-
-              <div className="bg-blue-500/20 p-3 rounded-lg">
-                Total Machines : {machines.length}
-              </div>
-
-              <div className="bg-yellow-500/20 p-3 rounded-lg">
-                Scheduled Maintenance : {schedules.length}
-              </div>
-
-            </div>
-
-          </div>
 
         </div>
 

@@ -8,12 +8,6 @@ import Technicians from "./pages/Technicians";
 import Breakdowns from "./pages/Breakdowns";
 import History from "./pages/History";
 
-<Route
-  path="/history"
-  element={<History />}
-/>
-
-
 function App() {
   return (
     <Routes>
@@ -22,9 +16,9 @@ function App() {
       <Route path="/machines" element={<Machines />} />
       <Route path="/maintenance" element={<Maintenance />} />
       <Route path="/reports" element={<Reports />} />
-      <Route path="/technicians"element={<Technicians />}/>
-      <Route path="/breakdowns"element={<Breakdowns />}/>
-      <Route path="/history"element={<History />}/>
+      <Route path="/technicians" element={<Technicians />} />
+      <Route path="/breakdowns" element={<Breakdowns />} />
+      <Route path="/history" element={<History />} />
     </Routes>
   );
 }

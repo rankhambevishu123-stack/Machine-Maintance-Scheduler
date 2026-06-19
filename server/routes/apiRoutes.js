@@ -8,6 +8,7 @@ const allowedCollections = new Set([
   "schedules",
   "breakdowns",
   "history",
+  "users",
 ]);
 
 function notFoundResponse(res, message) {
@@ -61,7 +62,7 @@ router.post("/login", async (req, res) => {
   const user = database.users.find(
     (item) =>
       normalizeText(item.department).toLowerCase() === normalizeText(department).toLowerCase() &&
-      normalizeText(item.password) === normalizeText(password)
+      normalizeText(item.password).toLowerCase() === normalizeText(password).toLowerCase()
   );
 
   if (!user) {

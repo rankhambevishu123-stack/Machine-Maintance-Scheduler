@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 export default function Maintenance() {
   const [schedules, setSchedules] = useState([]);
@@ -10,6 +11,7 @@ export default function Maintenance() {
   const [date, setDate] = useState("");
   const [priority, setPriority] = useState("Medium");
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all([api.list("schedules"), api.list("machines"), api.list("technicians")])
@@ -104,7 +106,16 @@ export default function Maintenance() {
 
   return (
     <div className="min-h-screen bg-[#081421] text-white p-8">
+<div className="flex justify-end mb-4">
 
+  <button
+    onClick={() => navigate("/dashboard")}
+    className="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg"
+  >
+    Back to Dashboard
+  </button>
+
+</div>
       <h1 className="text-4xl font-bold mb-8">
         Maintenance Schedule
       </h1>

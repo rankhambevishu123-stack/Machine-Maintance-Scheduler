@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
-
+import { useNavigate } from "react-router-dom";
 export default function Technicians() {
   const [technicians, setTechnicians] = useState([]);
   const [name, setName] = useState("");
@@ -9,6 +9,7 @@ export default function Technicians() {
   const [assignedMachines, setAssignedMachines] = useState("");
   const [search, setSearch] = useState("");
   const [editId, setEditId] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.list("technicians").then(setTechnicians).catch(() => setTechnicians([]));
@@ -70,6 +71,16 @@ export default function Technicians() {
 
   return (
     <div className="min-h-screen bg-[#081421] text-white p-8">
+      <div className="flex justify-end mb-4">
+
+  <button
+    onClick={() => navigate("/dashboard")}
+    className="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg"
+  >
+    Back to Dashboard
+  </button>
+
+</div>
       <h1 className="text-4xl font-bold mb-6">Technician Management</h1>
 
       <div className="bg-[#0d1b2a] p-6 rounded-xl border border-slate-700 mb-8">

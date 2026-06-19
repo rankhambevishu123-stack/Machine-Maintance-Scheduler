@@ -1,24 +1,37 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 export default function History() {
+  const navigate = useNavigate();
   const [schedules, setSchedules] = useState([]);
   const [breakdownHistory, setBreakdownHistory] = useState([]);
-
-  useEffect(() => {
-    Promise.all([api.list("schedules"), api.list("history")])
-      .then(([scheduleItems, historyItems]) => {
-        setSchedules(scheduleItems);
-        setBreakdownHistory(historyItems);
-      })
-      .catch(() => {
-        setSchedules([]);
-        setBreakdownHistory([]);
-      });
-  }, []);
-
+useEffect(() => {
+  Promise.all([
+    api.list("schedules"),
+    api.list("breakdowns")
+  ])
+    .then(([scheduleItems, breakdownItems]) => {
+      setSchedules(scheduleItems);
+      setBreakdownHistory(breakdownItems);
+    })
+    .catch(() => {
+      setSchedules([]);
+      setBreakdownHistory([]);
+    });
+}, []);
   return (
     <div className="min-h-screen bg-[#081421] text-white p-8">
+      <div className="flex justify-end mb-4">
+
+  <button
+    onClick={() => navigate("/dashboard")}
+    className="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg"
+  >
+    Back to Dashboard
+  </button>
+
+</div>
       <h1 className="text-4xl font-bold mb-8">Maintenance History</h1>
 
       <div className="bg-[#0d1b2a] p-6 rounded-xl border border-slate-700">

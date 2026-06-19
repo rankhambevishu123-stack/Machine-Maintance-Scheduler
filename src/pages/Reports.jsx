@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { api } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 export default function Reports() {
   const [machines, setMachines] = useState([]);
   const [schedules, setSchedules] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all([api.list("machines"), api.list("schedules")])
@@ -41,6 +43,16 @@ export default function Reports() {
 
   return (
     <div className="min-h-screen bg-[#081421] text-white p-8">
+      <div className="flex justify-end mb-4">
+
+  <button
+    onClick={() => navigate("/dashboard")}
+    className="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded-lg"
+  >
+    Back to Dashboard
+  </button>
+
+</div>
       <h1 className="text-4xl font-bold mb-8">Reports</h1>
 
       <button
