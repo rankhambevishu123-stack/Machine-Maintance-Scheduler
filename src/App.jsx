@@ -7,6 +7,7 @@ import Reports from "./pages/Reports";
 import Technicians from "./pages/Technicians";
 import Breakdowns from "./pages/Breakdowns";
 import History from "./pages/History";
+import DatabaseViewer from "./pages/DatabaseViewer";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Route path="/technicians" element={<Technicians />} />
       <Route path="/breakdowns" element={<Breakdowns />} />
       <Route path="/history" element={<History />} />
+      <Route path="/database-viewer" element={<DatabaseViewer />} />
     </Routes>
   );
 }

@@ -24,6 +24,8 @@ async function request(path, options = {}) {
 export const api = {
   health: () => request("/health"),
   summary: () => request("/summary"),
+  dbStatus: () => request("/db-status"),
+  inspectDb: () => request("/db-inspect"),
   login: (department, password) => request("/login", {
     method: "POST",
     body: JSON.stringify({ department, password }),

@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "server": "node server/index.js",
-    "server:dev": "node --watch server/index.js",
+    "server": "node database/index.js",
+    "server:dev": "node --watch database/index.js",
+    "seed:postgres": "node database/database/seedPostgres.js",
+    "inspect:db": "node database/inspectTables.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -14,10 +16,12 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^1.17.0",
+    "pg": "^8.14.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.17.0",
